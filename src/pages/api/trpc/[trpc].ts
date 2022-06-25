@@ -38,6 +38,19 @@ export const appRouter = trpc
 			}
 		},
 	})
+	.mutation('deleteTodo', {
+		input: z.object({
+			id: z.number(),
+		}),
+		async resolve({ input }) {
+			await prisma.todo.delete({
+				where: {
+					id: input.id,
+				},
+			})
+			return 'Todo Deleted'
+		},
+	})
 	.query('getTodos', {
 		async resolve() {
 			const todos = await prisma.todo.findMany()

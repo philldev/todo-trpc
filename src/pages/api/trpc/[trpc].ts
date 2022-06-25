@@ -17,6 +17,27 @@ export const appRouter = trpc
 			})
 		},
 	})
+	.mutation('updateTodo', {
+		input: z.object({
+			id: z.number(),
+			text: z.string(),
+			completed: z.boolean(),
+		}),
+		async resolve({ input }) {
+			const todo = await prisma.todo.update({
+				where: {
+					id: input.id,
+				},
+				data: {
+					...input,
+				},
+			})
+
+			return {
+				todo,
+			}
+		},
+	})
 	.query('getTodos', {
 		async resolve() {
 			const todos = await prisma.todo.findMany()

@@ -7,10 +7,14 @@ import clsx from 'clsx'
 const Home: NextPage = () => {
 	return (
 		<div className='w-full min-h-screen overflow-x-hidden bg-gray-900 text-gray-50'>
-			<div className='p-4 text-4xl font-bold text-center'>TODO TRPC</div>
-			<div className='max-w-md mx-auto space-y-4'>
-				<AddTodo />
+			<div className='flex items-center p-4'>
+				<div className='flex-1'>
+					<div className='font-bold'>TODOS</div>
+				</div>
 				<TodosToolbar />
+			</div>
+			<div className='py-4 space-y-4'>
+				<AddTodo />
 				<Todos />
 			</div>
 		</div>
@@ -20,28 +24,27 @@ const Home: NextPage = () => {
 const TodosToolbar = () => {
 	const { data, status } = trpc.useQuery(['getTodos'])
 	const utils = trpc.useContext()
-	const { mutate: deleteTodo } = trpc.useMutation('deleteTodo', {
-		onSuccess() {
-			utils.invalidateQueries('getTodos')
-		},
-	})
+	const { mutate: deleteCompletedTodos } = trpc.useMutation(
+		'deleteCompletedTodos',
+		{
+			onSuccess() {
+				utils.invalidateQueries('getTodos')
+			},
+		}
+	)
 
 	const onRemoveCompletedClick = () => {
-		const completedTodos = data?.todos?.filter((t) => t.completed)
-		completedTodos?.forEach((todo) => {
-			deleteTodo({
-				id: todo.id,
-			})
-		})
+		deleteCompletedTodos()
 	}
 
-	if (data?.todos.length === 0) return null
+	const completedTodos = data?.todos.filter((t) => t.completed)
 
 	return (
-		<div className='px-4'>
+		<div className='flex items-center px-4 space-x-4'>
 			<button
 				onClick={onRemoveCompletedClick}
-				className='px-2 py-1 text-sm font-bold bg-red-500 rounded-md hover:bg-opacity-95'
+				className='px-2 py-1 text-sm font-bold text-red-500 rounded-md hover:bg-gray-800 hover:bg-opacity-95 disabled:opacity-50 disabled:cursor-not-allowed'
+				disabled={completedTodos?.length === 0}
 			>
 				Remove completed
 			</button>

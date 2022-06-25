@@ -51,6 +51,16 @@ export const appRouter = trpc
 			return 'Todo Deleted'
 		},
 	})
+	.mutation('deleteCompletedTodos', {
+		async resolve() {
+			await prisma.todo.deleteMany({
+				where: {
+					completed: true,
+				},
+			})
+			return 'Todos Deleted'
+		},
+	})
 	.query('getTodos', {
 		async resolve() {
 			const todos = await prisma.todo.findMany()
